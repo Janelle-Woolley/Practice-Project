@@ -11,8 +11,7 @@
 # call functions
 
 # DOING:
-# function for rating album
-# function for printing album
+# Testing
 
 # DONE:
 # Main routine
@@ -20,6 +19,8 @@
 # Menu function
 # function for adding album
 # function for deleting album
+# function for rating album
+# function for printing album
 
 
 # Created By Phoebe, I edited variable names
@@ -54,93 +55,110 @@ def add_album(dictionary):
     """
     Asks for user inputs and adds them to dictionary
     """
-    adding_albums = True
-    while adding_albums:
-        album = input("Please enter the title of the album\n"
-                      "(or type 'q' to quit)\n"
-                      ": ")
-        if album == "q":
-            adding_albums = False
+    album = input("Please enter the title of the album: ")
+    artist = input("Please enter the artist: ")
+    genre = input("Please enter the genre: ")
+    rating = input("Please give it a rating: ")
+    # converts dictionary in a list so it can access the last value and add 1 to it
+    # this creates a new album key
+    key = list(dictionary.keys())[-1] +1
+
+    dictionary.update({key: {"Title": album.title(),
+                             "Artist": artist.title(),
+                             "Genre": genre.title(),
+                             "Rating": rating}})
+
+
+# Created By Phoebe
+# I removed parts of it becuase the get_album_key function already did it
+def delete_album(dictionary, key):
+    """
+    Asks user for album key
+    Deletes coresponding album
+    """
+    print("You have chose to delete album {}.".format(key))
+    del dictionary[key]
+
+
+def get_album_key(dictionary):
+    """
+    Ask user for album key then returns it
+    """
+    MIN_DICT_SIZE = 0
+    getting_key = True
+    while getting_key:
+        try:
+            album_rating_change = int(input("\nPlease select the key number "
+                                            "for the album you would like to select: "))
+
+        except ValueError:
+            print("Please enter a whole number")
+
+        if album_rating_change > len(dictionary) or album_rating_change < MIN_DICT_SIZE:
+            print("Please enter an album key")
+
+        elif album_rating_change <= len(dictionary):
+            return album_rating_change
+            
+
         else:
-            artist = input("Please enter the artist: ")
-            genre = input("Please enter the genre: ")
-            rating = input("Please give it a rating: ")
-            key = len(dictionary) + 1
-
-            dictionary.update({key: {"Title": album,
-                                     "Artist": artist,
-                                     "Genre": genre,
-                                     "Rating": rating}})
-            adding_albums = False
+            print("Please enter an album key")
 
 
-# Created By Phoebe, I edited code to fit
-def delete_album(dictionary):
-    deleting_albums = True
-    while deleting_albums:
-        delete = input("\nPlease select the album number you would "
-                       "like to delete, or press 'q' to quit: ")
-        
-        if delete == "q":
-                deleting_albums = False
-        else:
-            print("You have chose to delete album {}.".format(delete))
-            del dictionary[delete]
-            key = len(dictionary) - 1
-            dictionary.update()
-            deleting_albums = False
+def change_rating(dictionary, key):
+    """
+    Asks user for a new rating for album selected
+    Updates dictionary accordingly
+    """
+    HIGHEST_RATING = 5
+    LOWEST_RATING = 0
 
-
-def rate_album(dictionary):
-    album_rating_change = input("\nPlease select the key number "
-                                "for the album you would like to "
-                                "change the rating for"
-                                "\nOR press 'q' to quit: "))
-    
-    album_info = dictionary[album_rating_change]
+    # seting variables for the album info so they can be used when updating the dictionary 
+    album_info = dictionary[key]
     album = album_info["Title"]
     artist = album_info["Artist"]
     genre = album_info["Genre"]
     rating = album_info["Rating"]
-    key = album_rating_change
 
     getting_rating = True
     while getting_rating:
         try:
             new_rating = int(input("Please give the album a rating out of 5: "))
 
-            if new_rating < 0 or new_rating > 5:
-                print("Please rate the album from 0 to 5")
+        except ValueError:
+            print("Please enter a whole number")
+        
+        if new_rating < LOWEST_RATING or new_rating > HIGHEST_RATING:
+            print("Please rate the album out of 5")
 
-            elif new_rating == rating:
-                print("The album already has this rating "
-                      "please change it")
+        elif new_rating == rating:
+            print("The album already has this rating "
+                  "please change it")
 
-            elif new_rating != rating and new_rating >= 0 and new_rating <= 5:
-                dictionary.update({key: {"Title": album,
+        elif new_rating != rating and new_rating >= LOWEST_RATING and new_rating <= HIGHEST_RATING:
+            dictionary.update({key: {"Title": album,
                                      "Artist": artist,
                                      "Genre": genre,
                                      "Rating": new_rating}})
-                getting_rating = False
+            getting_rating = False
 
-            else:
-                print("Please enter a number between 0 and 5")
-                
-        except ValueError:
-            print("Please enter a whole number")        
+        else:
+            print("Please enter a number between 0 and 5")
 
 
 def print_albums(dictionary):
+    """
+    Prints albums out formated
+    """
     for key in dictionary.keys():
-        album = key["Title"]
-        artist = key["Artist"]
-        genre = key["Genre"]
-        rating = key["Rating"]
+        album_info = dictionary[key]
+        album = album_info["Title"]
+        artist = album_info["Artist"]
+        genre = album_info["Genre"]
+        rating = album_info["Rating"]
 
-        print("{}\t{}\t{}\t{}\t{}".format(key, album, artist, genre, rating))
+        print("{}\t{}\t\t{}\t{}\t{}".format(key, album, artist, genre, rating))
 
-def prints(dictionary):
-    print(dictionary)
 
 if __name__ == "__main__":
     albums = {1: {"Title": "Sour",
@@ -170,11 +188,16 @@ if __name__ == "__main__":
             print_albums(albums)
         elif menu_option == 2:
             print_albums(albums)
-            delete_album(albums)
+            key = get_album_key(albums)
+            delete_album(albums, key)
+        elif menu_option == 3:
             print_albums(albums)
+            key = get_album_key(albums)
+            edit_album(albums, key)
         elif menu_option == 4:
-            prints(albums)
-            rate_album(albums)
+            print_albums(albums)
+            key = get_album_key(albums)
+            change_rating(albums, key)
         elif menu_option == 5:
             print_albums(albums)
         else:
